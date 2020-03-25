@@ -1,0 +1,95 @@
+"""
+Created on Wed Mar 25 - 2020
+
+@author: Leandro Martins
+
+"""
+
+######################################################
+#               -*- coding: utf-8 -*                 #
+#                                                    #
+# WebService utilizado: http://buscarcep.com.br/     #
+#                                                    #
+#                                                    #
+# Git -  LeandroMartins0                             #
+# Mail - leandro.goncalves@hotmail.com.br            #
+#                                                    #   
+# Python 3.7                                         #
+#                                                    #
+######################################################
+
+## Bibliotecas
+import http.client
+import sys
+import urllib
+import urllib.parse
+##
+
+
+def SearchCep(Cep):
+    '''
+    Encontra e retorna dados do CEP, como String 
+    '''
+    
+    ##              Parameters
+    params = urllib.urlencode(dict(
+            format = 'xml',
+            key = 'Chave_Gratuita_BuscarCep',
+            id = 'CLIENTE1',
+            cep = Cep))
+    
+###################################################
+    
+    ##              Connection
+    conn = http.client.HTTPSConnection('buscarcep.com.br')
+    conn.connect()
+    conn.request('GET', '/?{0}'.format(params))
+    
+    response = conn.getresponse()
+    
+###################################################
+    
+    ##            Test Connection
+    if response.status == http.client.OK:
+        return response.read()
+    else:
+        raise http.client.HTTPException('{0:d} {1}'.format(
+                response.status,
+                http.client.responses[response.status]))
+###################################################  
+     
+     
+     
+#################### Formats #######################
+     
+def Xml(content):
+    import xml.dom.minidom
+    xml = xml.dom.minidom.parseString(content)
+    print (xml.toprettyxml())
+    
+
+def String(content):
+    from pprint import pprint
+    dic = urllib.parse.parse_qs(content.replace('\n', ''))
+    pprint(dic)    
+     
+     
+####################################################
+    
+    
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        print ('Uso: python buscarcep.py CEP \n')
+        sys.exit(1)
+        
+        content = SearchCep(sys.argv[1])
+        
+        
+    # Return XML
+    #Xml(content)
+
+    # Return STRING
+    String(content)
+    
+
